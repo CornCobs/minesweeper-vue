@@ -44,6 +44,8 @@ var app = new Vue({
     data: {
         mineField: createMineField(HEIGHT, WIDTH, MINES),
         tilesToOpen: HEIGHT * WIDTH - MINES,
+        time: 0,
+        timer: null,
         colors: [
             "rgba(0,0,0,0)",
             "blue",
@@ -60,15 +62,21 @@ var app = new Vue({
         reset: function() {
             this.mineField = createMineField(HEIGHT, WIDTH, MINES);
             this.tilesToOpen = HEIGHT * WIDTH - MINES;
+            this.time = 0;
+            clearInterval(this.timer);
+            this.timer = null;
         },
         lose: function() {
             this.mineField.forEach(row => {
                 row.forEach(tile => tile.shown = true)
             });
             alert("Game over!");
+            clearInterval(this.timer);
         },
         openTile: function(tile) {
-            console.log("openTile on tile " + tile.row + ", " + tile.col);
+            if (this.timer === null) {
+                this.timer = setInterval(() => this.time++, 1000);
+            }
             if (tile.shown) {
                 return;
             }
@@ -91,6 +99,14 @@ var app = new Vue({
         },
         flagTile: function(tile) {
             tile.flag = true;
+        }
+    },
+    watch: {
+        tilesToOpen: function(newVal, oldVal) {
+            if (newVal === 0) {
+                clearInterval(this.timer);
+                alert("Congratulations! You cleared the board in " + this.time + " seconds");
+            }
         }
     }
 })
