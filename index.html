@@ -5,8 +5,10 @@
     <title>Vue App</title>
     <style>
         table {
+            font-family: "Lucida Console", Monaco, monospace;
             border: 1px solid rgb(123, 123, 123);
             border-collapse: collapse;
+            padding: 0;
         }
         td {
             border: 1px solid rgb(123, 123, 123);
@@ -15,9 +17,21 @@
             height: 20px;
             width: 20px;
             font-size: 100%;
+            padding: 0;
+            cursor: default;
         }
-        td:hover {
+        td div {
+            padding-top: 3px;
+            height: 100%;
+            text-align: center;
+        }
+
+        .unopened-tile:hover {
             background-color: lightgrey;
+        }
+
+        .unopened-tile {
+            display: block;
         }
 
     </style>
@@ -27,10 +41,28 @@
         <table>
             <tr v-for="row in mineField">
                 <td v-for="tile in row">
-                    {{ tile.isMine ? "💣" : " " }}
+                    <div v-if="tile.shown && !tile.isMine" 
+                         v-bind:style="{ color: colors[tile.number] }">
+                        {{ tile.number }}
+                    </div>
+                    <div v-else-if="tile.shown" style="font-size:80%">
+                        💣
+                    </div>
+                    <div v-else class="unopened-tile" 
+                         v-on:click.left="openTile(tile)"
+                         v-on:contextmenu.prevent="flagTile(tile)"
+                         style="font-size:80%">
+                         <template v-if="tile.flag">
+                            📍
+                         </template>
+                    </div>
                 </td>
             </tr>
         </table>
+        <button v-on:click="reset()">Reset</button>
+        <div>
+            <p>Tiles left to clear: {{ tilesToOpen }}</p>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="main.js"></script>
